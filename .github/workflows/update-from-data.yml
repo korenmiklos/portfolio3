@@ -1,23 +1,19 @@
 # File: .github/workflows/update-from-data.yml
 name: Update from Data Repository
-
 on:
   repository_dispatch:
     types: [update-from-data]
-
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout portfolio repository
         uses: actions/checkout@v3
-
       - name: Checkout data repository
         uses: actions/checkout@v3
         with:
           repository: korenmiklos/remote-theme
           path: temp-data
-
       - name: Update files from data repository
         run: |
           # List of files and folders to manage
@@ -30,7 +26,7 @@ jobs:
             "story.md"
             "home-blog.md"
             "search-blog.json"
-            "index.md"  # Include this to ensure it's removed if it exists
+            "index.md"
             # Add more files or folders as needed
           )
 
@@ -53,12 +49,17 @@ jobs:
             fi
           done
           
-          # Special handling for home-blog.md
+          # Special handling for home-blog.md and index.md
           if [ -f "home-blog.md" ]; then
+            if [ -f "index.md" ]; then
+              # If both files exist, remove index.md and rename home-blog.md
+              git rm index.md
+              echo "Removed existing index.md"
+            fi
             git mv home-blog.md index.md
             echo "Renamed home-blog.md to index.md"
-          else
-            echo "home-blog.md not found, skipping rename"
+          elif [ ! -f "index.md" ]; then
+            echo "Neither home-blog.md nor index.md found"
           fi
       - name: Remove temp-data folder
         run: rm -rf temp-data
@@ -67,6 +68,5 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add .
           git commit -m "Update from data repository" || echo "No changes to commit"
           git push
