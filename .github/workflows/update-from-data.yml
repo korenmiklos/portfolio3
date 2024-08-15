@@ -30,10 +30,10 @@ jobs:
             # Add more files or folders as needed
           )
 
-          # Remove existing items using git rm
+          # Remove existing items using git rm with force
           for item in "${files_to_manage[@]}"; do
             if [ -e "$item" ]; then
-              git rm -r "$item"
+              git rm -rf "$item"
               echo "Removed $item from Git tracking"
             fi
           done
@@ -53,7 +53,7 @@ jobs:
           if [ -f "home-blog.md" ]; then
             if [ -f "index.md" ]; then
               # If both files exist, remove index.md and rename home-blog.md
-              git rm index.md
+              git rm -f index.md
               echo "Removed existing index.md"
             fi
             git mv home-blog.md index.md
